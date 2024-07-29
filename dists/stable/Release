@@ -1,0 +1,17 @@
+Codename: stable
+Date: Mon, 29 Jul 2024 17:10:47 UTC
+Architectures: amd64
+Components: main
+Description: Unofficial APT repository for Debian/Ubuntu Obsidian
+MD5Sum:
+ 5607fc63b6076ae8cf5718573ae8f667 610 main/binary-amd64/Packages
+ 13b867196632729b33c4ae1e0b4a8e7d 429 main/binary-amd64/Packages.gz
+ 6176abdff7fe4bc21be6f097ab835097 102 main/binary-amd64/Release
+SHA1:
+ 7e84d9d80f42dc97d81154478307f1ce912c316f 610 main/binary-amd64/Packages
+ 284ded5fcb356ad3500701aac564507e33f5b8fe 429 main/binary-amd64/Packages.gz
+ 588bd8d3292980eb82be6f6b9d5f6d1fd974dc88 102 main/binary-amd64/Release
+SHA256:
+ 46e715c35db3459f9548bb940be44bdd06351d78205c09c8010e8bffa507dbe3 610 main/binary-amd64/Packages
+ 5a5b57add91688d30c55301ed16b6f03b08246a19553431c5c506d9e633592d3 429 main/binary-amd64/Packages.gz
+ fe1fd522ec68bc9f58bb06cfc4f7462cfc8c7068b3c89e0cadf08476b9f74175 102 main/binary-amd64/Release

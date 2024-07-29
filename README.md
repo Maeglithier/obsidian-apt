@@ -34,7 +34,7 @@ sudo rm /etc/apt/sources.list.d/obsidian.list
 
 # Checksum
 
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  pool/main/o/obsidian/obsidian_0.0.0_amd64.deb
+772da38d23b15f0f5d7cf17024a1948ff2c073b2195954743703178bf1254b36  pool/main/o/obsidian/obsidian_1.6.7_amd64.deb
 
 # Copyright
 
