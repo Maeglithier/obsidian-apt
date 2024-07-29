@@ -6,11 +6,11 @@ Use este repositório para instalar e atualizar o pacote obsidian com facilidade
 
 Antes de confiar neste repositório, verifique a integridade dos arquivos e considere sua segurança primeiro. Crie seu próprio repositório APT usando este como base ou utilize o meu que buscará atualizações diariamente.
 
-# Requisitos
+## Requisitos
 
 - Debian/Ubunto ou qualquer distro derivado destes.
 
-# Como instalar o repositório APT
+## Como instalar o repositório APT
 
 Para que o APT identifique este repositório e seja capaz de instalar e atualizar o Discord você deve executar os códigos abaixo.
 
@@ -22,7 +22,7 @@ sudo apt update
 sudo apt install obsidian -y # Agora você está pronto para instalar e atualizar sempre que uma nova versão lançar.
 ```
 
-# Como faço para desinstalar este repositório?
+## Como faço para desinstalar este repositório?
 
 Para remover este repositório e sua chave pública você deve executar os códigos abaixo.
 
@@ -32,11 +32,11 @@ sudo rm /usr/share/keyrings/obsidian-archive-keyring.gpg
 sudo rm /etc/apt/sources.list.d/obsidian.list
 ```
 
-# Checksum
+## Checksum
 
 772da38d23b15f0f5d7cf17024a1948ff2c073b2195954743703178bf1254b36  pool/main/o/obsidian/obsidian_1.6.7_amd64.deb
 
-# Copyright
+## Copyright
 
 O instalador do obsidian (arquivos deb) são distribuidos sob sua prórpia [licença](https://obsidian.md/license), [Termo de serviço](https://obsidian.md/terms) e de [privacidade](https://obsidian.md/privacy) ou qualquer outro termo ou licença usada pelo Obsidian.
 
