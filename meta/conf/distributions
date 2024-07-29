@@ -1,0 +1,5 @@
+Codename: stable
+Components: main
+Architectures: amd64
+Description: Unofficial APT repository for Debian/Ubuntu Obsidian
+SignWith: B2665622A7C9ACD8

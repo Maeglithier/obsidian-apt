@@ -1,0 +1,128 @@
+name: Atualizar
+
+# Controla quando o workflow vai ser executado
+on:
+  # https://crontab.guru/#0_12_*_*_*
+  # Atualmente configurado para executar a todo dia, às 12:00 AM.
+  schedule:
+    # Formato do cron:
+    # Minuto Hora Dia-do-Mês Mês Dia-da-Semana
+    - cron:  '0 12 * * *'
+  # Permite executar manualmente este workflow pela aba Actions
+  workflow_dispatch:
+
+jobs:
+  Atualizar:
+    runs-on: ubuntu-latest
+    env:
+      PUSH: 1
+      BAIXAR: 1
+      ATUALIZAR: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Verificar atualizações e atualizar o repositório
+      - name: Verificar se há atualização 🔎
+        run: |
+          function comparar (){
+            atual_maior=$(echo "$1" | cut -d "." -f 1)
+            atual_medio=$(echo "$1" | cut -d "." -f 2)
+            atual_menor=$(echo "$1" | cut -d "." -f 3 | cut -d "-" -f 1)
+
+            recente_maior=$(echo "$2" | cut -d "." -f 1)
+            recente_medio=$(echo "$2" | cut -d "." -f 2)
+            recente_menor=$(echo "$2" | cut -d "." -f 3 | cut -d "-" -f 1)
+
+            if [ "$recente_maior" -gt "$atual_maior" ]; then
+              return 0
+            fi
+            if [ "$recente_medio" -gt "$atual_medio" ]; then
+              return 0
+            fi
+            if [ "$recente_menor" -gt "$atual_menor" ]; then
+              return 0
+            fi
+            return 1
+          }
+
+          recente=$(curl -s "https://api.github.com/repos/obsidianmd/obsidian-releases/releases" | grep -Po '"tag_name": "v\K[^"]*' | head -1)
+          echo "Ultima versão lançada: ${recente}"
+          echo "RECENTE=${recente}" >> $GITHUB_ENV
+          if [ -f 'versao_atual' ]; then
+            atual=$(cat versao_atual)
+            echo "Versão atual: ${atual}"
+            echo "Comparando versões..."
+            if comparar "${atual}" "${recente}"; then
+              echo "Atualização identificada."
+              echo "BAIXAR=0" >> $GITHUB_ENV
+            else
+              echo "Não há atualização."
+            fi
+          else
+            echo "Não sei qual é a versão atual, por isso vou forçar uma atualização."
+            echo "BAIXAR=0" >> $GITHUB_ENV
+          fi
+      - name: Baixar atualização 🔥
+        if: ${{ env.BAIXAR == 0 }}
+        run: |
+          function baixar_atualizacao() {
+            versao=$(echo "$1" | cut -d "-" -f 1)
+
+            echo "Baixando: amd64"
+            wget -q "https://github.com/obsidianmd/obsidian-releases/releases/download/v$1/obsidian_${versao}_amd64.deb"
+            if [ "$?" -eq "0" ]; then
+              echo "Concluido"
+            else
+              return 1
+            fi
+
+            return 0
+          }
+
+          if baixar_atualizacao "${{ env.RECENTE }}"; then
+            echo "ATUALIZAR=0" >> $GITHUB_ENV
+          else
+            echo "Erro ao baixar o arquivo."
+          fi
+      # Importar a chave PGP privada e Informar suas informações
+      - name: Importar chave PGP 🔑
+        if: ${{ env.ATUALIZAR == 0 }}
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Informar chave importada ✅
+        if: ${{ env.ATUALIZAR == 0 }}
+        run: |
+          echo "fingerprint : ${{ steps.import_gpg.outputs.fingerprint }}"
+          echo "keyid       : ${{ steps.import_gpg.outputs.keyid }}"
+          echo "name        : ${{ steps.import_gpg.outputs.name }}"
+      # Organizar repositório apt e realizar o push
+      - name: Instalar dependências 🔨
+        if: ${{ env.ATUALIZAR == 0 }}
+        run: |
+          sudo apt install reprepro
+      - name: Atualizar repositório APT 🚨
+        if: ${{ env.ATUALIZAR == 0 }}
+        run: |
+          function atualizar_repositorio() {
+            versao=$(echo "$1" | cut -d "-" -f 1)
+            reprepro --basedir "$(pwd)/meta" includedeb stable "./obsidian_${versao}_amd64.deb"
+            if [ -d dists ]; then rm -r dists; fi
+            if [ -d pool ]; then rm -r pool; fi
+            mv meta/dists ./
+            mv meta/pool ./
+            checksum_amd64=$(sha256sum pool/main/o/obsidian/obsidian_${versao}_amd64.deb)
+            sed -i -E "s,[a-f0-9]{64}[ ]+pool/main/o/obsidian/obsidian_[0-9]+\.[0-9]+\.[0-9]+_amd64.deb,$checksum_amd64," README.md
+            echo "PUSH=0" >> $GITHUB_ENV
+          }
+          
+          atualizar_repositorio "${{ env.RECENTE }}"
+          echo "${{ env.RECENTE }}" > versao_atual
+      - uses: EndBug/add-and-commit@v9
+        if: ${{ env.PUSH == 0 }}
+        with:
+          message: 'Atualizando os pacotes'
+          add: 'versao_atual dists pool README.md'
+          default_author: github_actions
